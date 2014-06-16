@@ -17,7 +17,6 @@
 #include <linux/sched.h>
 #include <linux/smp.h>
 #include <linux/init.h>
-#include <linux/export.h>
 
 
 #include <asm/cputype.h>
