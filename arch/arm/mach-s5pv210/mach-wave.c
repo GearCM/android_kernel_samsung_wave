@@ -1014,7 +1014,7 @@ static int panel_reset_lcd(struct platform_device *pdev)
 static struct s3c_platform_fb lg4573_data __initdata = {
 	.hw_ver		= 0x62,
 	.clk_name	= "sclk_fimd",
-	.nr_wins	= 2,
+	.nr_wins	= 5,
 	.default_win	= CONFIG_FB_S3C_DEFAULT_WINDOW,
 	.swap		= FB_SWAP_HWORD | FB_SWAP_WORD,
 
@@ -1042,7 +1042,7 @@ static struct spi_board_info lg4573_spi_board_info[] __initdata = {
 static struct s3c_platform_fb tl2796_data __initdata = {
 	.hw_ver		= 0x62,
 	.clk_name	= "sclk_fimd",
-	.nr_wins	= 2,
+	.nr_wins	= 5,
 	.default_win	= CONFIG_FB_S3C_DEFAULT_WINDOW,
 	.swap		= FB_SWAP_HWORD | FB_SWAP_WORD,
 
