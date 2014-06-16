@@ -57,10 +57,6 @@
 #include <linux/wlan_plat.h>
 #include <linux/mfd/wm8994/wm8994_pdata.h>
 
-#ifdef CONFIG_ANDROID_PMEM
-#include <linux/android_pmem.h>
-#endif
-
 #include <plat/media.h>
 #include <mach/media.h>
 
@@ -317,10 +313,6 @@ static struct s3cfb_lcd s6e63m0 = {
 						 (CONFIG_FB_S3C_NUM_OVLY_WIN * \
 						  CONFIG_FB_S3C_NUM_BUF_OVLY_WIN)))
 #define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_JPEG (916 * SZ_1K)
-#define  S5PV210_ANDROID_PMEM_MEMSIZE_PMEM (5550 * SZ_1K)
-#define  S5PV210_ANDROID_PMEM_MEMSIZE_PMEM_GPU1 (3000 * SZ_1K)
-#define  S5PV210_ANDROID_PMEM_MEMSIZE_PMEM_ADSP (1500 * SZ_1K)
-#define  S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM (3000 * SZ_1K)
 
 static struct s5p_media_device wave_media_devs[] = {
 	[0] = {
@@ -372,36 +364,6 @@ static struct s5p_media_device wave_media_devs[] = {
 		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_FIMD,
 		.paddr = 0,
 	},
-#ifdef CONFIG_ANDROID_PMEM
-	[7] = {
-		.id = S5P_MDEV_PMEM,
-		.name = "pmem",
-		.bank = 0,
-		.memsize = S5PV210_ANDROID_PMEM_MEMSIZE_PMEM,
-		.paddr = 0,
-	},
-	[8] = {
-		.id = S5P_MDEV_PMEM_GPU1,
-		.name = "pmem_gpu1",
-		.bank = 0,
-		.memsize = S5PV210_ANDROID_PMEM_MEMSIZE_PMEM_GPU1,
-		.paddr = 0,
-	},
-	[9] = {
-		.id = S5P_MDEV_PMEM_ADSP,
-		.name = "pmem_adsp",
-		.bank = 0,
-		.memsize = S5PV210_ANDROID_PMEM_MEMSIZE_PMEM_ADSP,
-		.paddr = 0,
-		},
-	[10] = {
-		.id = S5P_MDEV_TEXSTREAM,
-		.name = "s3c_bc",
-		.bank = 1,
-		.memsize = S5PV210_VIDEO_SAMSUNG_MEMSIZE_TEXTSTREAM,
-		.paddr = 0,
-	},
-#endif
 };
 
 #ifdef CONFIG_CPU_FREQ
@@ -1052,7 +1014,7 @@ static int panel_reset_lcd(struct platform_device *pdev)
 static struct s3c_platform_fb lg4573_data __initdata = {
 	.hw_ver		= 0x62,
 	.clk_name	= "sclk_fimd",
-	.nr_wins	= 5,
+	.nr_wins	= 2,
 	.default_win	= CONFIG_FB_S3C_DEFAULT_WINDOW,
 	.swap		= FB_SWAP_HWORD | FB_SWAP_WORD,
 
@@ -1080,7 +1042,7 @@ static struct spi_board_info lg4573_spi_board_info[] __initdata = {
 static struct s3c_platform_fb tl2796_data __initdata = {
 	.hw_ver		= 0x62,
 	.clk_name	= "sclk_fimd",
-	.nr_wins	= 5,
+	.nr_wins	= 2,
 	.default_win	= CONFIG_FB_S3C_DEFAULT_WINDOW,
 	.swap		= FB_SWAP_HWORD | FB_SWAP_WORD,
 
@@ -2029,7 +1991,7 @@ static void mxt224_power_off(void)
 	gpio_direction_output(GPIO_TOUCH_EN, 0);
 }
 
-#define MXT224_MAX_MT_FINGERS 5
+#define MXT224_MAX_MT_FINGERS 3
 
 static u8 t7_config[] = {GEN_POWERCONFIG_T7,
 64, 255, 50};
@@ -2297,68 +2259,6 @@ static struct platform_device ram_console_device = {
 	.num_resources = ARRAY_SIZE(ram_console_resource),
 	.resource = ram_console_resource,
 };
-
-#ifdef CONFIG_ANDROID_PMEM
-static struct android_pmem_platform_data pmem_pdata = {
-	.name = "pmem",
-	.no_allocator = 1,
-	.cached = 1,
-	.start = 0,
-	.size = 0,
-};
-
-static struct android_pmem_platform_data pmem_gpu1_pdata = {
-	.name = "pmem_gpu1",
-	.no_allocator = 1,
-	.cached = 1,
-	.buffered = 1,
-	.start = 0,
-	.size = 0,
-};
-
-static struct android_pmem_platform_data pmem_adsp_pdata = {
-	.name = "pmem_adsp",
-	.no_allocator = 1,
-	.cached = 1,
-	.buffered = 1,
-	.start = 0,
-	.size = 0,
-};
-
-static struct platform_device pmem_device = {
-	.name = "android_pmem",
-	.id = 0,
-	.dev = { .platform_data = &pmem_pdata },
-};
-
-static struct platform_device pmem_gpu1_device = {
-	.name = "android_pmem",
-	.id = 1,
-	.dev = { .platform_data = &pmem_gpu1_pdata },
-};
-
-static struct platform_device pmem_adsp_device = {
-	.name = "android_pmem",
-	.id = 2,
-	.dev = { .platform_data = &pmem_adsp_pdata },
-};
-
-static void __init android_pmem_set_platdata(void)
-{
-	pmem_pdata.start = (u32)s5p_get_media_memory_bank(S5P_MDEV_PMEM, 0);
-	pmem_pdata.size = (u32)s5p_get_media_memsize_bank(S5P_MDEV_PMEM, 0);
-
-	pmem_gpu1_pdata.start =
-		(u32)s5p_get_media_memory_bank(S5P_MDEV_PMEM_GPU1, 0);
-	pmem_gpu1_pdata.size =
-		(u32)s5p_get_media_memsize_bank(S5P_MDEV_PMEM_GPU1, 0);
-
-	pmem_adsp_pdata.start =
-		(u32)s5p_get_media_memory_bank(S5P_MDEV_PMEM_ADSP, 0);
-	pmem_adsp_pdata.size =
-		(u32)s5p_get_media_memsize_bank(S5P_MDEV_PMEM_ADSP, 0);
-}
-#endif
 
 struct platform_device wave_charger_device = {
 	.name	= "wave_charger",
@@ -4692,12 +4592,6 @@ static struct platform_device *wave_devices[] __initdata = {
 	&s5pv210_pd_mfc,
 #endif
 
-#ifdef CONFIG_ANDROID_PMEM
-	&pmem_device,
-	&pmem_gpu1_device,
-	&pmem_adsp_device,
-#endif
-
 #ifdef CONFIG_HAVE_PWM
 	&s3c_device_timer[0],
 	&s3c_device_timer[1],
@@ -4970,11 +4864,6 @@ static void __init wave_machine_init(void)
 
 	/*initialise the gpio's*/
 	wave_init_gpio();
-
-#ifdef CONFIG_ANDROID_PMEM
-	android_pmem_set_platdata();
-#endif
-
 
 	samsung_keypad_set_platdata(&wave_keypad_data);
 
