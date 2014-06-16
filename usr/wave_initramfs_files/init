@@ -47,12 +47,12 @@ if ! busybox grep -q bootmode=2 /proc/cmdline ; then
 	then
 		#check partitions existance
 		if [ ! -f /bada_system/cache.img ] ; then
-			#18MB cache partition
-			make_ext4fs -l 18874368 /bada_system/cache.img
+			# 30MB cache partition
+			make_ext4fs -l 31457280 /bada_system/cache.img
 		fi
 		if [ ! -f /bada_system/system.img ] ; then
-			# 270MB system partition
-			# make_ext4fs -l 283115520 /bada_system/system.img
+			# 400MB system partition
+			# make_ext4fs -l 419430400 /bada_system/system.img
 			# Don't make it - shorten bootup time. Recovery package will recreate this partition anyway.
 			force_recovery="1"
 		fi
@@ -64,8 +64,8 @@ if ! busybox grep -q bootmode=2 /proc/cmdline ; then
 	if busybox mount | busybox grep -q /bada_app ;
 	then
 		if [ ! -f /bada_app/data.img ] ; then
-			#400MB data partition
-			make_ext4fs -l 419430400 /bada_app/data.img
+			# 650MB data partition
+			make_ext4fs -l 681574400 /bada_app/data.img
 		fi
 	else
 		#something went terriwrong
